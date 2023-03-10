@@ -21,7 +21,7 @@ namespace QuestAppLauncher
        {
             DateTime dt = DateTime.Now;
 
-          //  this.textGui.text = string.Format("{0}", dt.ToString("h:mm tt"));
+            this.textGui.text = string.Format("{0}", dt.ToString("h:mm tt"));
             
        }
     }
