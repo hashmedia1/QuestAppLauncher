@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using UnityEngine.UI;
 
 namespace QuestAppLauncher
 {
@@ -42,6 +43,7 @@ namespace QuestAppLauncher
         // File name of app name overrides
         const string AppNameOverrideTxtFileSearch = "appnames*.txt";
         const string AppNameOverrideJsonFileSearch = "appnames*.json";
+        public const string AppNameFile = "apps.json";
 
         // Rename file names
         public const string RenameJsonFileName = "appnames_rename.json";
@@ -60,15 +62,19 @@ namespace QuestAppLauncher
         const string IconOverrideExtSearch = "*.jpg";
 
         // Built-in tab names
-        public const string Tab_Quest = "Quest";
-        public const string Tab_Go = "Go/Gear";
-        public const string Tab_2D = "2D";
+        public const string Tab_VR = "VR";
+        public const string Tab_AR = "AR";
+        public const string Tab_WebXR = "Web XR";
+        public const string Tab_CloudXR = "Cloud XR";
+        public const string Tab_Windows = "Windows";
         public const string Tab_All = "All";
 
         // LastUsage lookback days
         const int LastUsedLookbackDays = 30;
+               public  static string  json="";
+                public static Dictionary<string, JsonAppNamesEntry> jsonAppNames;
 
-        public static readonly string[] Auto_Tabs = { Tab_Quest, Tab_Go, Tab_2D };
+        public static readonly string[] Auto_Tabs = { Tab_VR, Tab_AR,Tab_WebXR,Tab_CloudXR,Tab_Windows };
 
         /// <summary>
         /// Entry point for app processing: Applies app name overrides (from appnames.txt/json) and app icons (from individual jpgs or icon packs).
@@ -123,6 +129,23 @@ namespace QuestAppLauncher
                     }
                 }
 
+              
+
+              
+                 var filePath = Path.Combine(persistentDataPath, AppNameFile);
+         
+
+                try
+                
+                {
+                    json = File.ReadAllText(filePath, Encoding.UTF8);
+                    jsonAppNames = JsonConvert.DeserializeObject<Dictionary<string, JsonAppNamesEntry>>(json);
+                }catch (Exception e)
+                {
+                    Debug.Log(string.Format("Failed to process json app names: {0}", e.Message));
+    
+                }
+
                 // Get installed package and app names
                 for (int i = 0; i < numApps; i++)
                 {
@@ -138,35 +161,57 @@ namespace QuestAppLauncher
                     }
 
                     // Determine app type (Quest, Go or 2D)
-                    string tabName;
-                    if (currentActivity.Call<bool>("is2DApp", i))
-                    {
-                        if (!config.show2D)
-                        {
-                            // Skip 2D apps
-                            Debug.LogFormat("Skipping 2D [{0}] Package: {1}, name: {2}", i, packageName, appName);
-                            continue;
-                        }
+                    string tabName="";
 
-                        tabName = Tab_2D;
+                    if(!isRenameMode){
+
+                        if (File.Exists(filePath))
+                        {
+                            foreach (var entry in jsonAppNames)
+                            {
+                                var packageNameValue = entry.Key;
+                                var appNameValue = entry.Value.Name;
+
+
+                           
+
+                                // Override auto tab name if custom name matches built-in tab name
+                                if (string.Compare(packageName,packageNameValue)==0)
+                                {
+                                    GameObject.Find("Debug").GetComponent<Text>().text=GameObject.Find("Debug").GetComponent<Text>().text+"\n"+packageNameValue+"->"+appNameValue+"->"+entry.Value.Category;
+                                    tabName = entry.Value.Category;
+            
+                                }
+
+                            
+                            }
+                        }
                     }
-                    else if (currentActivity.Call<bool>("isQuestApp", i))
-                    {
-                        tabName = Tab_Quest;
-                    }
-                    else
-                    {
-                        tabName = Tab_Go;
-                    }
+                    // if(i%5==0){
+                    //     tabName = Tab_VR;   
+                    
+                    //  }else if(i%5==1){
+                    // //     tabName = Tab_VR;   
+                    // // }else if(i%5==2){
+                    // //     tabName = Tab_WebXR;   
+                    // // }else if(i%5==3){
+                    // //     tabName = Tab_CloudXR;   
+                    //  }else{
+                    //      tabName = Tab_Windows;   
+                    // }
+                  
+                   
 
                     apps.Add(packageName, new ProcessedApp { PackageName = packageName, Index = i,
                         AutoTabName = tabName, AppName = appName, LastTimeUsed = lastTimeUsed });
                     Debug.LogFormat("[{0}] package: {1}, name: {2}, auto tab: {3}", i, packageName, appName, tabName);
                 }
 
+ 
+
                 // Process app name overrides files (both downloaded & manually created)
-                ProcessAppNameOverrideFiles(isRenameMode, apps, AssetsDownloader.GetOrCreateDownloadPath());
-                ProcessAppNameOverrideFiles(isRenameMode, apps, persistentDataPath);
+              //  ProcessAppNameOverrideFiles(isRenameMode, apps, AssetsDownloader.GetOrCreateDownloadPath());
+             //   ProcessAppNameOverrideFiles(isRenameMode, apps, persistentDataPath);
 
                 // Extract icon packs (both downloaded & manually created)
                 ExtractIconPacks(currentActivity, AssetsDownloader.GetOrCreateDownloadPath());
@@ -217,7 +262,10 @@ namespace QuestAppLauncher
             Debug.Log("Found file: " + appNameOverrideFilePath);
 
             try
+            
             {
+
+
                 var json = File.ReadAllText(appNameOverrideFilePath, Encoding.UTF8);
                 var jsonAppNames = JsonConvert.DeserializeObject<Dictionary<string, JsonAppNamesEntry>>(json);
 

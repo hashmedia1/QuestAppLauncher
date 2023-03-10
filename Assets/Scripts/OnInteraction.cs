@@ -9,7 +9,14 @@ namespace QuestAppLauncher
     {
         // Hide app handler
         public HideAppHandler hideAppHandler;
-
+        public GameObject scrollContainer;
+        public GameObject downloadStatus;
+        public GameObject topTabs;
+        public GameObject leftTabs;
+        public GameObject rightTabs;
+        public GameObject topBar;
+        public GameObject canvas;
+        public Camera mainCamera;
         // Rename app handler
         public RenameHandler renameHandler;
 
@@ -31,6 +38,25 @@ namespace QuestAppLauncher
                 // Disable border
                 EnableBorder(t, false);
             }
+        }
+
+        public void Minimize()
+        {
+            scrollContainer.SetActive(false);
+            downloadStatus.SetActive(false);
+            topTabs.SetActive(false);
+            leftTabs.SetActive(false);
+            rightTabs.SetActive(false);
+            topBar.SetActive(false);
+        }
+        public void Maximize()
+        {
+            scrollContainer.SetActive(true);
+            downloadStatus.SetActive(true);
+            topTabs.SetActive(true);
+            leftTabs.SetActive(true);
+            rightTabs.SetActive(true);
+            topBar.SetActive(true);
         }
 
         public async void OnSelected(Transform t)
@@ -65,11 +91,26 @@ namespace QuestAppLauncher
 
         public void OnSelectedPressedBorY(Transform t)
         {
-            var appEntry = t.gameObject.GetComponent("AppEntry") as AppEntry;
-            if (null != appEntry && !appEntry.isRenameMode)
-            {
-                this.hideAppHandler.OnHideApp(appEntry);
-            }
+            // var appEntry = t.gameObject.GetComponent("AppEntry") as AppEntry;
+            // if (null != appEntry && !appEntry.isRenameMode)
+            // {
+            //     this.hideAppHandler.OnHideApp(appEntry);
+            // }
+
+                canvas.transform.position=new Vector3(1.2f,2.4f,7.3f);
+
+                canvas.transform.rotation=  Quaternion.Euler(0f,7.59f,0f);
+               // transform.LookAt(mainCamera.transform.position);
+               // transform.Rotate(0,-180,0) ;
+
+        }
+
+        public void OnAddApplication(Transform t)
+        {
+           
+                this.renameHandler.OpenRenamePanel();
+            
+
         }
 
         public void OnSelectedPressedAorX(Transform t)
@@ -77,7 +118,7 @@ namespace QuestAppLauncher
             var appEntry = t.gameObject.GetComponent("AppEntry") as AppEntry;
             if (null != appEntry && !appEntry.isRenameMode)
             {
-                this.renameHandler.OpenRenamePanel(appEntry);
+                this.renameHandler.OpenRenamePanel();
             }
         }
 

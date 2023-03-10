@@ -33,16 +33,16 @@ namespace QuestAppLauncher
         /// Opens the rename panel.
         /// </summary>
         /// <param name="appToRename">App to rename</param>
-        public async void OpenRenamePanel(AppEntry appToRename)
+        public async void OpenRenamePanel()
         {
             Debug.Log("Open Rename Panel");
             this.panelContainer.SetActive(false);
             this.closeRenameButton.SetActive(true);
             this.renamePanelContainer.SetActive(true);
 
-            this.appToRename = appToRename;
+           // this.appToRename = appToRename;
 
-            this.renameLabel.text = string.Format("Pick entry to rename app '{0}' (package '{1}')", appToRename.appName, appToRename.packageId);
+            this.renameLabel.text = string.Format("Add Application to '{0}'", GridPopulation.currentCategory);
 
             // Only populate once.
             // This will be reset in the next scene load (by design, since we may download new assets).
@@ -59,23 +59,23 @@ namespace QuestAppLauncher
         /// <param name="entry"></param>
         public async void Rename(AppEntry appTarget)
         {
-            Debug.Assert(null != this.appToRename, "App to rename is null");
+            //Debug.Assert(null != this.appToRename, "App to rename is null");
             var filePath = appTarget.externalIconPath;
             bool cleanupFile = false;
 
             // If icon path is null, extract icon from apk
-            if (null == filePath)
-            {
-                filePath = Path.Combine(AssetsDownloader.GetOrCreateDownloadPath(), this.appToRename.packageId + ".jpg");
-                cleanupFile = true;
+            // if (null == filePath)
+            // {
+            //     filePath = Path.Combine(AssetsDownloader.GetOrCreateDownloadPath(), this.appToRename.packageId + ".jpg");
+            //     cleanupFile = true;
 
-                var bytes = appTarget.sprite.GetComponent<Image>().sprite.texture.EncodeToJPG();
-                using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None,
-                    bufferSize: 4096, useAsync: true))
-                {
-                    await fileStream.WriteAsync(bytes, 0, bytes.Length);
-                };
-            }
+            //     var bytes = appTarget.sprite.GetComponent<Image>().sprite.texture.EncodeToJPG();
+            //     using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None,
+            //         bufferSize: 4096, useAsync: true))
+            //     {
+            //         await fileStream.WriteAsync(bytes, 0, bytes.Length);
+            //     };
+            // }
 
             await Task.Run(() =>
             {
@@ -84,15 +84,15 @@ namespace QuestAppLauncher
                 try
                 {
                     // Add to json file
-                    AddToRenameJsonFile(this.appToRename.packageId, appTarget.appName);
+                    AddToRenameJsonFile(appTarget.packageId, appTarget.appName);
 
                     // Add icon to zip
-                    using (AndroidJavaClass unity = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
-                    using (AndroidJavaObject currentActivity = unity.GetStatic<AndroidJavaObject>("currentActivity"))
-                    {
-                        var renameIconPackFilePath = Path.Combine(UnityEngine.Application.persistentDataPath, AppProcessor.RenameIconPackFileName);
-                        currentActivity.CallStatic("addFileToZip", renameIconPackFilePath, filePath, this.appToRename.packageId + ".jpg");
-                    }
+                    // using (AndroidJavaClass unity = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
+                    // using (AndroidJavaObject currentActivity = unity.GetStatic<AndroidJavaObject>("currentActivity"))
+                    // {
+                    //     var renameIconPackFilePath = Path.Combine(UnityEngine.Application.persistentDataPath, AppProcessor.RenameIconPackFileName);
+                    //     currentActivity.CallStatic("addFileToZip", renameIconPackFilePath, filePath, appTarget.packageId + ".jpg");
+                    // }
                 }
                 finally
                 {
@@ -127,9 +127,10 @@ namespace QuestAppLauncher
         /// <param name="appName">App name</param>
         private void AddToRenameJsonFile(string packageId, string appName)
         {
-            var renameJsonFilePath = Path.Combine(UnityEngine.Application.persistentDataPath, AppProcessor.RenameJsonFileName);
+            var renameJsonFilePath = Path.Combine(UnityEngine.Application.persistentDataPath, AppProcessor.AppNameFile);
             Dictionary<string, AppProcessor.JsonAppNamesEntry> jsonAppNames = null;
 
+    GameObject.Find("Debug").GetComponent<Text>().text=GameObject.Find("Debug").GetComponent<Text>().text+"\n"+"Test";
             if (File.Exists(renameJsonFilePath))
             {
                 // Read rename json file
@@ -150,8 +151,8 @@ namespace QuestAppLauncher
             {
                 jsonAppNames = new Dictionary<string, AppProcessor.JsonAppNamesEntry>();
             }
-
-            jsonAppNames[packageId] = new AppProcessor.JsonAppNamesEntry { Name = appName };
+            GameObject.Find("Debug").GetComponent<Text>().text=GameObject.Find("Debug").GetComponent<Text>().text+"\n->"+appName+"->"+packageId+"->"+GridPopulation.currentCategory;
+            jsonAppNames[packageId] = new AppProcessor.JsonAppNamesEntry { Name = appName, Category = GridPopulation.currentCategory };
 
             // Persist
             try

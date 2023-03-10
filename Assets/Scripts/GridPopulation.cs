@@ -70,6 +70,11 @@ namespace QuestAppLauncher
 
         // Tab prefab
         public GameObject prefabTab;
+        public static string currentCategory="";
+
+
+            public  GameObject cat;
+          public static TextMeshProUGUI txtGUI;
 
         #region MonoBehaviour handler
 
@@ -77,7 +82,7 @@ namespace QuestAppLauncher
         {
             // Set high texture resolution scale to minimize aliasing
             XRSettings.eyeTextureResolutionScale = 2.0f;
-
+            txtGUI= cat.GetComponent<TextMeshProUGUI>();
             // Initialize the core platform
             Core.AsyncInitialize();
 
@@ -152,6 +157,7 @@ namespace QuestAppLauncher
             Config config,
             Dictionary<string, ProcessedApp> apps)
         {
+            GameObject.Find("Debug").GetComponent<Text>().text=GameObject.Find("Debug").GetComponent<Text>().text+"\n"+"Test";
             // Set up tabs
             var topTabs = new List<string>();
             var leftTabs = new List<string>();
@@ -167,33 +173,40 @@ namespace QuestAppLauncher
             {
                 topTabs.AddRange(autoTabs);
             }
-            else if (config.autoCategory.Equals(Config.Category_Left, StringComparison.OrdinalIgnoreCase))
+            else //if (config.autoCategory.Equals(Config.Category_Left, StringComparison.OrdinalIgnoreCase))
             {
-                leftTabs.AddRange(autoTabs);
+                
+
+                leftTabs.AddRange(new[]{"VR","AR","Web XR","Cloud XR","Windows"});
+
+                
             }
-            else if (config.autoCategory.Equals(Config.Category_Right, StringComparison.OrdinalIgnoreCase))
-            {
-                rightTabs.AddRange(autoTabs);
-            }
+
+            GameObject.Find("Debug").GetComponent<Text>().text=GameObject.Find("Debug").GetComponent<Text>().text+"\n"+"1";
+
+            // else if (config.autoCategory.Equals(Config.Category_Right, StringComparison.OrdinalIgnoreCase))
+            // {
+            //     rightTabs.AddRange(autoTabs);
+            // }
 
             // Set custom tabs, sorted alphabetically
-            var customTabs = apps.Where(x => null != x.Value.Tab1Name).Select(x => x.Value.Tab1Name).Union(apps
-                .Where(x => null != x.Value.Tab2Name).Select(x => x.Value.Tab2Name))
-                .Distinct(StringComparer.CurrentCultureIgnoreCase).ToList();
-            customTabs.Sort();
+            // var customTabs = apps.Where(x => null != x.Value.Tab1Name).Select(x => x.Value.Tab1Name).Union(apps
+            //     .Where(x => null != x.Value.Tab2Name).Select(x => x.Value.Tab2Name))
+            //     .Distinct(StringComparer.CurrentCultureIgnoreCase).ToList();
+            // customTabs.Sort();
 
-            if (config.customCategory.Equals(Config.Category_Top, StringComparison.OrdinalIgnoreCase))
-            {
-                topTabs.AddRange(customTabs);
-            }
-            else if (config.customCategory.Equals(Config.Category_Left, StringComparison.OrdinalIgnoreCase))
-            {
-                leftTabs.AddRange(customTabs);
-            }
-            else if (config.customCategory.Equals(Config.Category_Right, StringComparison.OrdinalIgnoreCase))
-            {
-                rightTabs.AddRange(customTabs);
-            }
+            // if (config.customCategory.Equals(Config.Category_Top, StringComparison.OrdinalIgnoreCase))
+            // {
+            //     topTabs.AddRange(customTabs);
+            // }
+            // else if (config.customCategory.Equals(Config.Category_Left, StringComparison.OrdinalIgnoreCase))
+            // {
+            //     leftTabs.AddRange(customTabs);
+            // }
+            // else if (config.customCategory.Equals(Config.Category_Right, StringComparison.OrdinalIgnoreCase))
+            // {
+            //     rightTabs.AddRange(customTabs);
+            // }
 
             // Add the "all" top tab
             topTabs.Add(AppProcessor.Tab_All);
@@ -201,30 +214,40 @@ namespace QuestAppLauncher
             // Process the tab containers
             var gridContents = new Dictionary<string, GameObject>(StringComparer.OrdinalIgnoreCase);
 
-            ProcessTabContainer(config, topTabs, this.panelContainer, this.scrollContainer, this.topTabContainer, this.topTabContainerContent, true, gridContents);
-            ProcessTabContainer(config, leftTabs, this.panelContainer, this.scrollContainer, this.leftTabContainer, this.leftTabContainerContent, false, gridContents);
-            ProcessTabContainer(config, rightTabs, this.panelContainer, this.scrollContainer, this.rightTabContainer, this.rightTabContainerContent, false, gridContents);
+            ProcessTabContainer(config, topTabs, this.panelContainer, this.scrollContainer, this.topTabContainer, this.topTabContainerContent, false, gridContents);
+            ProcessTabContainer(config, leftTabs, this.panelContainer, this.scrollContainer, this.leftTabContainer, this.leftTabContainerContent, true, gridContents);
+           // ProcessTabContainer(config, rightTabs, this.panelContainer, this.scrollContainer, this.rightTabContainer, this.rightTabContainerContent, false, gridContents);
+
+            GameObject.Find("Debug").GetComponent<Text>().text=GameObject.Find("Debug").GetComponent<Text>().text+"\n"+"2\nGrid Count:"+gridContents.Count;
+
 
             // Set panel size, use any grid content for reference (since they are all the same size)
             if (gridContents.Count > 0)
             {
                 var size = SetGridSize(this.panelContainer, gridContents.First().Value, config.gridSize.rows, config.gridSize.cols);
 
+                GameObject.Find("Debug").GetComponent<Text>().text=GameObject.Find("Debug").GetComponent<Text>().text+"\n"+"3";
                 // Adjust tab sizes
-                ResizeTabContent(this.topTabContainer.transform, size, topTabs.Count, true);
+                //ResizeTabContent(this.topTabContainer.transform, size, topTabs.Count, true);
+                GameObject.Find("Debug").GetComponent<Text>().text=GameObject.Find("Debug").GetComponent<Text>().text+"\n"+"4";
                 ResizeTabContent(this.leftTabContainer.transform, size, leftTabs.Count, false);
-                ResizeTabContent(this.rightTabContainer.transform, size, rightTabs.Count, false);
+                GameObject.Find("Debug").GetComponent<Text>().text=GameObject.Find("Debug").GetComponent<Text>().text+"\n"+"5";
+             //  ResizeTabContent(this.rightTabContainer.transform, size, rightTabs.Count, false);
             }
 
             bool loadIcons = apps.Count <= MaxIconsOnInitialPopulation;
 
+            GameObject.Find("Debug").GetComponent<Text>().text=GameObject.Find("Debug").GetComponent<Text>().text+"\n"+"6";
+             
             // Populate grid with app information (name & icon)
             // Sort by custom comparer
             foreach (var app in apps.OrderBy(key => key.Value, new AppComparer()))
             {
                 // Add to all tab
+                
                 await AddCellToGridAsync(app.Value, gridContents[AppProcessor.Tab_All].transform, loadIcons);
 
+               
                 // Add to auto (built-in) tabs
                 if (gridContents.ContainsKey(app.Value.AutoTabName))
                 {
@@ -342,6 +365,7 @@ namespace QuestAppLauncher
             // Create scroll views and tabs
             foreach (string tabName in tabs)
             {
+                 
                 Debug.LogFormat("Populating tab '{0}'", tabName);
 
                 // Create scroll view
@@ -359,13 +383,23 @@ namespace QuestAppLauncher
                 var toggle = tab.GetComponent<Toggle>();
                 toggle.isOn = setFirstTabActive;
                 toggle.group = panel.GetComponent<ToggleGroup>();
-                toggle.onValueChanged.AddListener(scrollView.SetActive);
+               // toggle.onValueChanged.AddListener(scrollView.SetActive);
+                 toggle.onValueChanged.AddListener(delegate {
+                             changeCategory(toggle,scrollView,tabName);
+                      });
 
                 setFirstTabActive = false;
 
                 // Record the grid content
                 gridContents[tabName] = scrollView.GetComponent<ScrollRect>().content.gameObject;
             }
+        }
+        public static void changeCategory(Toggle change,GameObject scrollView,string currCategory)
+        {
+           
+            scrollView.SetActive(change.isOn);
+            currentCategory=currCategory;
+             //txtGUI.text = currCategory;
         }
 
         private async Task AddCellToGridAsync(ProcessedApp app, Transform transform, bool loadIcon, bool isRenameMode = false)

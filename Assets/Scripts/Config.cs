@@ -61,7 +61,7 @@ namespace QuestAppLauncher
         public bool show2D = true;
 
         // Auto Category: Apps are automatically categorized into 3 tabs - Quest, Go/GearVr, 2D
-        public string autoCategory = Category_Top;
+        public string autoCategory = Category_Left;
 
         // Custom Category: Apps are categorized according to appnames.txt file
         public string customCategory = Category_Right;
