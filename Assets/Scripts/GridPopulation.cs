@@ -39,6 +39,9 @@ namespace QuestAppLauncher
         // Scroll container game object
         public GameObject scrollContainer;
 
+        public GameObject bottomBar;
+        public GameObject topBar;
+
         // SKybox handler
         public SkyboxHandler skyboxHandler;
 
@@ -58,6 +61,7 @@ namespace QuestAppLauncher
 
         // Tracking space
         public GameObject trackingSpace;
+        public Canvas canvas;
 
         // Download status indicator
         public DownloadStatusIndicator downloadStatusIndicator;
@@ -72,6 +76,7 @@ namespace QuestAppLauncher
         public GameObject prefabTab;
         public static string currentCategory="";
 
+        public static InputField inputField;
 
             public  GameObject cat;
           public static TextMeshProUGUI txtGUI;
@@ -157,7 +162,7 @@ namespace QuestAppLauncher
             Config config,
             Dictionary<string, ProcessedApp> apps)
         {
-            GameObject.Find("Debug").GetComponent<Text>().text=GameObject.Find("Debug").GetComponent<Text>().text+"\n"+"Test";
+          
             // Set up tabs
             var topTabs = new List<string>();
             var leftTabs = new List<string>();
@@ -182,7 +187,7 @@ namespace QuestAppLauncher
                 
             }
 
-            GameObject.Find("Debug").GetComponent<Text>().text=GameObject.Find("Debug").GetComponent<Text>().text+"\n"+"1";
+           
 
             // else if (config.autoCategory.Equals(Config.Category_Right, StringComparison.OrdinalIgnoreCase))
             // {
@@ -218,26 +223,40 @@ namespace QuestAppLauncher
             ProcessTabContainer(config, leftTabs, this.panelContainer, this.scrollContainer, this.leftTabContainer, this.leftTabContainerContent, true, gridContents);
            // ProcessTabContainer(config, rightTabs, this.panelContainer, this.scrollContainer, this.rightTabContainer, this.rightTabContainerContent, false, gridContents);
 
-            GameObject.Find("Debug").GetComponent<Text>().text=GameObject.Find("Debug").GetComponent<Text>().text+"\n"+"2\nGrid Count:"+gridContents.Count;
+           
 
 
             // Set panel size, use any grid content for reference (since they are all the same size)
             if (gridContents.Count > 0)
             {
+
+               
                 var size = SetGridSize(this.panelContainer, gridContents.First().Value, config.gridSize.rows, config.gridSize.cols);
 
-                GameObject.Find("Debug").GetComponent<Text>().text=GameObject.Find("Debug").GetComponent<Text>().text+"\n"+"3";
+                
                 // Adjust tab sizes
-                //ResizeTabContent(this.topTabContainer.transform, size, topTabs.Count, true);
-                GameObject.Find("Debug").GetComponent<Text>().text=GameObject.Find("Debug").GetComponent<Text>().text+"\n"+"4";
+                //ResizeTopBar(this.topBar.transform, size);
+                
+            //   var boxCollider = canvas.transform.GetComponent<BoxCollider>();
+
+            //     if(config.gridSize.rows==2){
+            //   boxCollider.center = new Vector3(boxCollider.center.x,(size.y/2), boxCollider.center.z);
+            //     }else  if(config.gridSize.rows==3){
+            //   boxCollider.center = new Vector3(boxCollider.center.x,(size.y/2), boxCollider.center.z);
+            //     }else  if(config.gridSize.rows==4){
+            //   boxCollider.center = new Vector3(boxCollider.center.x,(size.y/2), boxCollider.center.z);
+            //     }
+
+            //GameObject.Find("Debug").GetComponent<Text>().text=GameObject.Find("Debug").GetComponent<Text>().text+"\n"+boxCollider.center.x+" "+((size.y/2)+100)+" "+boxCollider.center.z;
                 ResizeTabContent(this.leftTabContainer.transform, size, leftTabs.Count, false);
-                GameObject.Find("Debug").GetComponent<Text>().text=GameObject.Find("Debug").GetComponent<Text>().text+"\n"+"5";
+                //ResizeBottomBar(this.bottomBar.transform, size);
+                
              //  ResizeTabContent(this.rightTabContainer.transform, size, rightTabs.Count, false);
             }
 
             bool loadIcons = apps.Count <= MaxIconsOnInitialPopulation;
 
-            GameObject.Find("Debug").GetComponent<Text>().text=GameObject.Find("Debug").GetComponent<Text>().text+"\n"+"6";
+            
              
             // Populate grid with app information (name & icon)
             // Sort by custom comparer
@@ -317,6 +336,25 @@ namespace QuestAppLauncher
             transform.gameObject.GetComponent<ScrollButtonHandler>().RefreshScrollContent(childCount);
         }
 
+        private void ResizeTopBar(Transform transform, Vector2 size)
+        {
+            var rect = transform.GetComponent<RectTransform>();
+
+            // Resize the transform
+            Vector2  newSize = new Vector2(size.x, rect.rect.height);
+            
+           
+
+            rect.sizeDelta = newSize;
+
+            // Resize box collider
+          //  var boxCollider = transform.GetComponent<BoxCollider>();
+          //  boxCollider.size = new Vector3(newSize.x, newSize.y, (float)0.05);
+
+            // Refresh tab prev / next buttons
+            
+        }
+
         private Vector2 SetGridSize(GameObject panel, GameObject gridContent, int rows, int cols)
         {
             // Make sure grid size have sane value
@@ -374,21 +412,45 @@ namespace QuestAppLauncher
                 scrollRectOverride.trackingSpace = this.trackingSpace.transform;
 
                 var gridContent = scrollRectOverride.content.gameObject;
-                scrollView.SetActive(setFirstTabActive);
+                
 
                 // Create tab
                 var tab = (GameObject)Instantiate(this.prefabTab, tabContainerContent.transform);
                 tab.GetComponentInChildren<TextMeshProUGUI>().text = tabName;
 
                 var toggle = tab.GetComponent<Toggle>();
-                toggle.isOn = setFirstTabActive;
+
+                if(string.IsNullOrEmpty(GridPopulation.currentCategory))
+                {
+
+                    toggle.isOn = setFirstTabActive;
+                    scrollView.SetActive(setFirstTabActive);
+                    setFirstTabActive = false;
+
+                }
+                else
+                {
+                    if(tabName==GridPopulation.currentCategory){
+                        toggle.isOn = true;
+                        scrollView.SetActive(true);
+                     
+                    }
+                    else
+                    {
+                        toggle.isOn = false;
+                        scrollView.SetActive(false);
+                    }
+                  
+                }
+
+            
                 toggle.group = panel.GetComponent<ToggleGroup>();
                // toggle.onValueChanged.AddListener(scrollView.SetActive);
                  toggle.onValueChanged.AddListener(delegate {
                              changeCategory(toggle,scrollView,tabName);
                       });
 
-                setFirstTabActive = false;
+                
 
                 // Record the grid content
                 gridContents[tabName] = scrollView.GetComponent<ScrollRect>().content.gameObject;
@@ -399,6 +461,9 @@ namespace QuestAppLauncher
            
             scrollView.SetActive(change.isOn);
             currentCategory=currCategory;
+
+           
+
              //txtGUI.text = currCategory;
         }
 

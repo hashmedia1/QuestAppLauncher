@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
-
+using UnityEngine.UI;
 namespace QuestAppLauncher
 {
     /// <summary>
@@ -12,16 +12,24 @@ namespace QuestAppLauncher
        public Transform pointer;
        public Camera mainCamera;
 
+        public Canvas canvas;
+       
+
        public bool x;
        public bool y;
        public bool z;
 
+       void Start(){
+
+                     
+       }
+
        public void Drag(){
 
-            float newX= x? pointer.position.x : transform.position.x;
-            float newY= y? pointer.position.y : transform.position.y;
-            float newZ= z? pointer.position.z : transform.position.z;
-            transform.position= new Vector3(newX,newY,newZ);
+            float newX= x? pointer.position.x : canvas.transform.position.x;
+            float newY= y? pointer.position.y : canvas.transform.position.y;
+            float newZ= z? pointer.position.z : canvas.transform.position.z;
+            canvas.transform.position= new Vector3(newX,newY,newZ);
             
 
 

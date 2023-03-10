@@ -12,4 +12,5 @@
   </application>
   <uses-feature android:name="android.hardware.vr.headtracking" android:required="false" android:version="1" />
   <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" />
+    <uses-feature android:name="oculus.software.overlay_keyboard" android:required="false"/>
 </manifest>

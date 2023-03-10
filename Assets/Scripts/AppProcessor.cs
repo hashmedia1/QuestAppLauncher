@@ -178,8 +178,10 @@ namespace QuestAppLauncher
                                 // Override auto tab name if custom name matches built-in tab name
                                 if (string.Compare(packageName,packageNameValue)==0)
                                 {
-                                    GameObject.Find("Debug").GetComponent<Text>().text=GameObject.Find("Debug").GetComponent<Text>().text+"\n"+packageNameValue+"->"+appNameValue+"->"+entry.Value.Category;
+                                   // GameObject.Find("Debug").GetComponent<Text>().text=GameObject.Find("Debug").GetComponent<Text>().text+"\n"+packageNameValue+"->"+appNameValue+"->"+entry.Value.Category;
                                     tabName = entry.Value.Category;
+                                    appName=appNameValue;
+                                    break;
             
                                 }
 
@@ -727,6 +729,19 @@ namespace QuestAppLauncher
             if (File.Exists(renameIconPackFilePath))
             {
                 File.Delete(renameIconPackFilePath);
+                ret = true;
+            }
+
+            return ret;
+        }
+
+        static public bool DeleteFiles ()
+        {
+            var ret = false;
+            var appJSONFilePath = Path.Combine(UnityEngine.Application.persistentDataPath, AppNameFile);
+            if (File.Exists(appJSONFilePath))
+            {
+                File.Delete(appJSONFilePath);
                 ret = true;
             }
 

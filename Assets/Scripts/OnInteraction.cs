@@ -19,6 +19,7 @@ namespace QuestAppLauncher
         public Camera mainCamera;
         // Rename app handler
         public RenameHandler renameHandler;
+        public ChangeNameHandler changeNameHandler;
 
         public void OnHoverEnter(Transform t)
         {
@@ -99,7 +100,7 @@ namespace QuestAppLauncher
 
                 canvas.transform.position=new Vector3(1.2f,2.4f,7.3f);
 
-                canvas.transform.rotation=  Quaternion.Euler(0f,7.59f,0f);
+               canvas.transform.rotation=  Quaternion.Euler(0f,7.59f,0f);
                // transform.LookAt(mainCamera.transform.position);
                // transform.Rotate(0,-180,0) ;
 
@@ -118,7 +119,7 @@ namespace QuestAppLauncher
             var appEntry = t.gameObject.GetComponent("AppEntry") as AppEntry;
             if (null != appEntry && !appEntry.isRenameMode)
             {
-                this.renameHandler.OpenRenamePanel();
+                this.changeNameHandler.OpenRenamePanel(appEntry);
             }
         }
 
